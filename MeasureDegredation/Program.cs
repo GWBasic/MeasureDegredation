@@ -52,12 +52,6 @@ namespace MeasureDegredation
 						return;
 					}
 
-					if (originalReader.SamplingRate != 48000)
-					{
-						Console.WriteLine("Only 48khz waves supported");
-						return;
-					}
-
 					if (originalReader.NumChannels != compressedReader.NumChannels)
 					{
 						Console.WriteLine("Number of channels do not match. Can not compare files with different channels");
@@ -67,7 +61,16 @@ namespace MeasureDegredation
 					var comparisonsByName = new Dictionary<string, IEnumerable<ComparisonAgregator>>();
 
 					comparisonsByName["samples"] = CompareBySamples (originalReader, compressedReader, compressedSamplesToSkip).ToArray();
-					comparisonsByName["banded"] = CompareByFrequencyBands (originalReader, compressedReader, compressedSamplesToSkip).ToArray();
+
+					if (originalReader.SamplingRate == 48000)
+					{
+						comparisonsByName["banded"] = CompareByFrequencyBands (originalReader, compressedReader, compressedSamplesToSkip).ToArray();
+					}
+					else
+					{
+						Console.WriteLine("Banded comparison requires a 48000 sampling rate");
+					}
+
 					comparisonsByName["frequencies"] = CompareByFrequencies (originalReader, compressedReader, originalReader.SamplingRate, originalReader.NumChannels, compressedSamplesToSkip).ToArray();
 
 					if (null != spreadsheet)
